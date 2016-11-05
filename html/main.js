@@ -1,3 +1,3 @@
 $( document ).ready(function() {
-   $('#main').html('hello wolrd');
+   $('#main').html('hello world');
 });
