@@ -13,25 +13,11 @@ var MockTransactions = [
    { "id" : 9, "metadata" : "[start]id:abf1fa0bcc12b626b4567ed94972b51f73e78ea7|" },
    { "id" : 10, "metadata" : "desc: This is also an image " },
    { "id" : 11, "metadata" : "from the blockchain-hackathon.com " },
-   { "id" : 12, "metadata" : "but of the BlockTor team[end]" }
+   { "id" : 12, "metadata" : "but of the BlockTor team[end]" },
+   { "id" : 7, "metadata" : "[start]torr:938802790a385c49307f34cca4c30f80b03df59c[end]" },
+   { "id" : 8, "metadata" : "[start]id:938802790a385c49307f34cca4c30f80b03df59c|name:TPB[end]" },
+   { "id" : 8, "metadata" : "[start]id:938802790a385c49307f34cca4c30f80b03df59c|desc:The Pirate Bay 2012[end]" },
 ];
-
-
-/**
- * Jquery functions as and if we need them.
- */
-$( document ).ready(function() {
-   $('#main').html('');
-   //var url = 'https://blockchain.info/address/17sknTxzAMZnUSajqtN8MUAmjgRK7vTZms?format=json&cors=true';
-   var url = 'https://testnet.api.coinprism.com/v1/addresses/2N3dKfnUquvThKoRcxqsHsisV3dqTVjvCEp/transactions';
-
-   //$.ajax({
-      //url: url,
-      //crossDomain: true
-   //}).done(function(data) {
-      //parseTransactions(MockTransactions);
-   //});
-});
 
 /**
  * Angular 1 functions/methods
@@ -45,11 +31,19 @@ angular.module('blockTorApp', [], function ($compileProvider) {
 
    // Main data storage for torrent data
    blockTor.torrents = {};
+   getTorrentList(function(ret) {
+      console.log("ret:", ret);
+      setTimeout(function(){
+         $('.hidden').removeClass('hidden');
+         $('.loading').addClass('hidden');
+      },1000);
+   });
 
    // Execute search
    parseTransactions(MockTransactions);
 
    blockTor.name = "We are Team BlockTor";
+   blockTor.filter = "";
 
    blockTor.torrentList = function () {
       var arr = []
@@ -59,10 +53,26 @@ angular.module('blockTorApp', [], function ($compileProvider) {
          for (k2 in blockTor.torrents[k]) {
             obj[k2] = blockTor.torrents[k][k2];
          }
-         arr.push(obj);
+         if (filter(obj)) {
+            arr.push(obj);
+         }
       }
       return arr;
    };
+
+   /**
+    * Filter for only wanted results
+    */
+   function filter(torrent) {
+      if (!blockTor.filter) {
+         return true;
+      } else {
+         if ((torrent.name.indexOf(blockTor.filter) !== -1) || (torrent.description.indexOf(blockTor.filter) !== -1)) {
+            return true;
+         }
+      }
+      return false;
+   }
 
    /**
     * Take each message and parse start, middle, and end.

@@ -11,11 +11,22 @@
       <div class="heading"></div>
       <div class="container theme-showcase" role="main">
          <div id="logo" class="jumbotron center">
-            <img src="logo.jpg" alt="" />
+            <img class="logo" src="logo.jpg" alt="" />
          </div>
          <div ng-controller="BlockTorController as blockTor">
-            <h1 class="center">{{ blockTor.name }}</h1>
-            <ul>
+            <h1 class="center">Team BlockTor</h1>
+            <div class="row">
+               <div class="col-md-7 col-md-offset-2">
+                  <div class="input-group input-group-lg search-box-group center">
+                     <input type="text" class="form-control search-box center" ng-model="blockTor.filter"/>
+                     <span class="input-group-btn">
+                        <button class="btn btn-default" type="button">Search</button>
+                     </span>
+                  </div>
+               </div>
+            </div>
+            <h1 class="loading center">Loading ...</h1>
+            <ul class="hidden">
               <li ng-repeat="torrent in blockTor.torrentList()">
                  <a href="magnet:?xt=urn:btih:{{ torrent.id }}">{{ torrent.name }}</a> :
                  <span>{{ torrent.description }}</span>
@@ -27,6 +38,7 @@
       <script src="./jquery-3.1.1.min.js"></script>
       <script src="./bootstrap.min.js"></script>
       <script src="./angular.min.js"></script>
+      <script src="../js/reader.js"></script>
       <script src="./main.js"></script>
    </body>
 </html>
