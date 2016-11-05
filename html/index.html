@@ -1,15 +1,15 @@
 <!DOCTYPE HTML>
-<html lang="en">
+<html lang="en" ng-app="blockTorApp">
    <head>
       <meta charset="UTF-8">
       <title>Block Tor</title>
       <style type="text/css" src="main.css"></style>
    </head>
    <body>
-      <div id="main">
-      </div>
-
+      <div id="main"></div>
+      <div ng-controller="BlockTorController as blockTor">{{ blockTor.name }}</div>
       <script src="./jquery-3.1.1.min.js"></script>
+      <script src="./angular.min.js"></script>
       <script src="./main.js"></script>
    </body>
 </html>
