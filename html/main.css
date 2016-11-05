@@ -5,3 +5,16 @@
 .center {
    text-align: center;
 }
+
+.search-box-group {
+   margin: 20px;
+   /*max-width: 200px;*/
+}
+
+.loading {
+   color: #828282;
+}
+
+img.logo {
+   height: 250px;
+}

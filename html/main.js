@@ -45,6 +45,10 @@ angular.module('blockTorApp', [], function ($compileProvider) {
 
    // Main data storage for torrent data
    blockTor.torrents = {};
+      setTimeout(function(){
+         $('.hidden').removeClass('hidden');
+         $('.loading').addClass('hidden');
+      },1000);
 
    // Execute search
    parseTransactions(MockTransactions);
