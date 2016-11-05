@@ -13,7 +13,10 @@ var MockTransactions = [
    { "id" : 9, "metadata" : "[start]id:abf1fa0bcc12b626b4567ed94972b51f73e78ea7|" },
    { "id" : 10, "metadata" : "desc: This is also an image " },
    { "id" : 11, "metadata" : "from the blockchain-hackathon.com " },
-   { "id" : 12, "metadata" : "but of the BlockTor team[end]" }
+   { "id" : 12, "metadata" : "but of the BlockTor team[end]" },
+   { "id" : 7, "metadata" : "[start]torr:938802790a385c49307f34cca4c30f80b03df59c[end]" },
+   { "id" : 8, "metadata" : "[start]id:938802790a385c49307f34cca4c30f80b03df59c|name:TPB[end]" },
+   { "id" : 8, "metadata" : "[start]id:938802790a385c49307f34cca4c30f80b03df59c|desc:The Pirate Bay 2012[end]" },
 ];
 
 /**
