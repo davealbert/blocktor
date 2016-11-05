@@ -10,9 +10,20 @@
    <body>
       <div class="heading"></div>
       <div class="container theme-showcase" role="main">
-         <div id="main" class="jumbotron"></div>
-         <div ng-controller="BlockTorController as blockTor">{{ blockTor.name }}</div>
+         <div id="logo" class="jumbotron center">
+            <img src="logo.jpg" alt="" />
+         </div>
+         <div ng-controller="BlockTorController as blockTor">
+            <h1 class="center">{{ blockTor.name }}</h1>
+            <ul>
+              <li ng-repeat="torrent in blockTor.torrentList()">
+                 <a href="magnet:?xt=urn:btih:{{ torrent.id }}">{{ torrent.name }}</a> :
+                 <span>{{ torrent.description }}</span>
+              </li>
+            </ul>
+         </div>
       </div>
+      <div id="main"></div>
       <script src="./jquery-3.1.1.min.js"></script>
       <script src="./bootstrap.min.js"></script>
       <script src="./angular.min.js"></script>
