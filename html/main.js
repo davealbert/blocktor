@@ -16,10 +16,6 @@ var MockTransactions = [
    { "id" : 12, "metadata" : "but of the BlockTor team[end]" }
 ];
 
-/**
- * Main data storage for torrent data
- */
-var torrents = {};
 
 /**
  * Jquery functions as and if we need them.
@@ -33,69 +29,98 @@ $( document ).ready(function() {
       //url: url,
       //crossDomain: true
    //}).done(function(data) {
-      //parseTransacrions(MockTransactions);
+      //parseTransactions(MockTransactions);
    //});
-   parseTransacrions(MockTransactions);
 });
 
 /**
- * Take each message and parse start, middle, and end.
+ * Angular 1 functions/methods
+ *   We are using Angular 1 over 2 because Agular 2 requires a http server
+ *   we want this application to function locally if possible.
  */
-function parseTransacrions(transactions) {
-   var buffer;
-   for (var i = 0; i < transactions.length; i++) {
-      var transaction = transactions[i];
+angular.module('blockTorApp', [], function ($compileProvider) {
+   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|magnet):/);
+}).controller('BlockTorController', function() {
+   var blockTor = this;
 
-      // Start
-      if (transaction.metadata.indexOf('[start]') !== -1) {
-         buffer = [];
-         transaction.metadata = transaction.metadata.replace(/\[start\]/g,'');
-      }
+   // Main data storage for torrent data
+   blockTor.torrents = {};
 
-      // Not End
-      if (transaction.metadata.indexOf('[end]') === -1) {
-         buffer.push(transaction.metadata);
-      }
+   // Execute search
+   parseTransactions(MockTransactions);
 
-      // End
-      if (transaction.metadata.indexOf('[end]') !== -1) {
-         buffer.push(transaction.metadata.replace(/\[end\]/g,''));
-         processContent(buffer.join(''));
+   blockTor.name = "We are Team BlockTor";
+
+   blockTor.torrentList = function () {
+      var arr = []
+      for(k in blockTor.torrents) {
+         var obj = {};
+         obj.id = k;
+         for (k2 in blockTor.torrents[k]) {
+            obj[k2] = blockTor.torrents[k][k2];
+         }
+         arr.push(obj);
       }
+      return arr;
    };
-}
 
+   /**
+    * Take each message and parse start, middle, and end.
+    */
+   function parseTransactions(transactions) {
+      var buffer;
+      for (var i = 0; i < transactions.length; i++) {
+         var transaction = transactions[i];
 
-/**
- * Take buffer built from parts and transform to useable content.
- */
-function processContent(contentBuffer) {
-   switch(true) {
-      // Define new torrent
-      case (contentBuffer.indexOf('torr') !== -1):
-         var id = contentBuffer.replace('torr:', '');
-         torrents[id] = {};
-         break;
+         // Start
+         if (transaction.metadata.indexOf('[start]') !== -1) {
+            buffer = [];
+            transaction.metadata = transaction.metadata.replace(/\[start\]/g,'');
+         }
 
-      case (contentBuffer.indexOf('desc:') !== -1):
-         var parts = contentBuffer.split('|');
-         var id = getPart('id:', parts);
-         var desc = getPart('desc:', parts);
-         torrents[id]['description'] = desc;
-         break;
+         // Not End
+         if (transaction.metadata.indexOf('[end]') === -1) {
+            buffer.push(transaction.metadata);
+         }
 
-      case (contentBuffer.indexOf('name:') !== -1):
-         var parts = contentBuffer.split('|');
-         var id = getPart('id:', parts);
-         var name = getPart('name:', parts);
-         torrents[id]['name'] = name;
-         break;
-
-      default:
-
+         // End
+         if (transaction.metadata.indexOf('[end]') !== -1) {
+            buffer.push(transaction.metadata.replace(/\[end\]/g,''));
+            processContent(buffer.join(''));
+         }
+      };
    }
-   $('#main').html(JSON.stringify(torrents));
-}
+
+   /**
+    * Take buffer built from parts and transform to useable content.
+    */
+   function processContent(contentBuffer) {
+      switch(true) {
+         // Define new torrent
+         case (contentBuffer.indexOf('torr') !== -1):
+            var id = contentBuffer.replace('torr:', '');
+            blockTor.torrents[id] = {};
+            break;
+
+         case (contentBuffer.indexOf('desc:') !== -1):
+            var parts = contentBuffer.split('|');
+            var id = getPart('id:', parts);
+            var desc = getPart('desc:', parts);
+            blockTor.torrents[id]['description'] = desc;
+            break;
+
+         case (contentBuffer.indexOf('name:') !== -1):
+            var parts = contentBuffer.split('|');
+            var id = getPart('id:', parts);
+            var name = getPart('name:', parts);
+            blockTor.torrents[id]['name'] = name;
+            break;
+
+         default:
+            break;
+      }
+   }
+});
 
 /**
  * Return the value for a key in an array of parts.
@@ -107,15 +132,4 @@ function getPart(needle, haystackArray) {
       }
    };
 }
-
-/**
- * Angular 1 functions/methods
- *   We are using Angular 1 over 2 because Agular 2 requires a http server
- *   we want this application to function locally if possible.
- */
-angular.module('blockTorApp', [])
-.controller('BlockTorController', function() {
-   var blockTor = this;
-   blockTor.name = "We are Team BlockTor";
-});
 
