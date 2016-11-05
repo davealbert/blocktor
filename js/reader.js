@@ -6,7 +6,7 @@ function hex2a(hexx) {
     return str;
 }
 
-function(callback) {
+function getTorrentList(callback) {
   $.getJSON('https://testnet.api.coinprism.com/v1/addresses/2NA5TP5HR9LjLzPeG985EGMH6AMyLHH49u2/transactions', function(data) {
   	console.log(data);
     $.each(data, function( index, value ) {
