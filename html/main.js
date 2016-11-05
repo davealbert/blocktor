@@ -28,10 +28,13 @@ angular.module('blockTorApp', [], function ($compileProvider) {
 
    // Main data storage for torrent data
    blockTor.torrents = {};
+   getTorrentList(function(ret) {
+      console.log("ret:", ret);
       setTimeout(function(){
          $('.hidden').removeClass('hidden');
          $('.loading').addClass('hidden');
       },1000);
+   });
 
    // Execute search
    parseTransactions(MockTransactions);
