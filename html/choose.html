@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="blockTorApp">
+   <head>
+      <meta charset="UTF-8">
+      <title>Block Tor</title>
+      <link href="./bootstrap.min.css" rel="stylesheet">
+      <link href="./bootstrap-theme.min.css" rel="stylesheet">
+      <link href="main.css" rel="stylesheet">
+   </head>
+   <body>
+      <div class="heading"></div>
+      <div class="container theme-showcase" role="main">
+         <div id="logo" class="jumbotron center">
+            <img class="logo" src="logo.png" alt="" />
+         </div>
+         <div ng-controller="BlockTorController as blockTor">
+            <h1 class="center">Team BlockTor</h1>
+            <div class="row">
+               <div class="center">
+                  <p></p>
+                  <p></p>
+                  <a href="post.html">Upload to BlockTor</a> |
+                  <a href="index.html">Download from BlockTor</a>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div id="main"></div>
+      <script src="./jquery-3.1.1.min.js"></script>
+      <script src="./bootstrap.min.js"></script>
+      <script src="./angular.min.js"></script>
+      <script src="./post.js"></script>
+   </body>
+</html>
