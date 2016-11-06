@@ -1,6 +1,5 @@
 var bitcoin = require("bitcoinjs-lib")
 var request = require('request')
-var sleep = require('sleep');
 
 var sourceWallet11 = "mkEEZ8gqfJsH1MRsQa9tBs1c66o561952Y"
 var privateKeyWIF11 = 'cV7mTRkSbMNsE8zURVYf3FJPczWxCipibGvtZyh4SAwJ9Jrq28Dz'
@@ -8,12 +7,12 @@ var privateKeyWIF11 = 'cV7mTRkSbMNsE8zURVYf3FJPczWxCipibGvtZyh4SAwJ9Jrq28Dz'
 var sourceWallet22 = "mndPvy8Mz6d4nZSuL3fTtSTADJBxFbVfxa"
 var privateKeyWIF22 = 'cSiNuQaPwU2dfEknrgiCYc6p94c5avSkVVHf9UN2cvaQWKMdsJ1A'
 
-var receiver = "mwzBThrZiTnPaR7rTtYhAjQnNnj1hxCTtA";
+var receiver = "muEqoXnoWbYarzusdTKeHduXda3ksMCotK";
 
 
 var conversion = 100000000;
 
-function f(sourceWallet, privateKeyWIF, destWallet, c) {
+function createTransaction(sourceWallet, privateKeyWIF, destWallet, callback) {
 
   var network = bitcoin.networks.testnet
   var tx = new bitcoin.TransactionBuilder(network)
@@ -89,18 +88,18 @@ function f(sourceWallet, privateKeyWIF, destWallet, c) {
        console.log('Server responded with:', body);
        console.log(JSON.parse(body).Message)
        if(JSON.parse(body).Message == "Error") {
-        c("Error")
+        callback("Error")
        } else {
-          c(body.substr(1, body.length - 2));
+          callback(body.substr(1, body.length - 2));
        }
     })
   }
 }
 
-function c(status) {
+function createTransactionFallbackAndVerifyStatus(status) {
     console.log("Status or body: " + status)
   if (status == "Error") {
-    f(sourceWallet22, privateKeyWIF22, sourceWallet11, digest)
+    createTransaction(sourceWallet22, privateKeyWIF22, sourceWallet11, digest)
   } else {
     checkStatus(status)
   }
@@ -123,11 +122,12 @@ function checkStatus(txId) {
        if(transaction && !transaction.is_unconfirmed) {
         return;
        } else {
-        sleep.sleep(5)
-        console.log("waiting for the transaction to be confirmed")
-        checkStatus(txId);
+        setTimeout(function(){
+          console.log("waiting for the transaction to be confirmed")
+          checkStatus(txId);
+        }, 5000)
        }
     })
 }
 
-f(sourceWallet11, privateKeyWIF11, sourceWallet22, c)
+ createTransaction(sourceWallet11, privateKeyWIF11, sourceWallet22, createTransactionFallbackAndVerifyStatus)
