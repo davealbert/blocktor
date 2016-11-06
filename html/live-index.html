@@ -28,7 +28,10 @@
             <h1 class="loading center">Loading ...</h1>
             <ul class="hidden">
               <li ng-repeat="torrent in blockTor.torrentList()">
-                 <a href="magnet:?xt=urn:btih:{{ torrent.id }}">{{ torrent.name }}</a> :
+                 <img src="https://davealbert.github.io/blocktor/html/good.png" class="magnet" ng-show="true" alt="" title="Good Reputation"/>
+                 <a href="magnet:?xt=urn:btih:{{ torrent.id }}">
+                 <img src="https://davealbert.github.io/blocktor/html/magnet.png" class="magnet" alt="" />
+                    {{ torrent.name }}</a> -
                  <span>{{ torrent.description }}</span>
               </li>
             </ul>
