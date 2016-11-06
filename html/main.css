@@ -1,3 +1,7 @@
+html, body {
+   font-size: 20px;
+}
+
 .heading {
    padding-top: 20px;
 }
@@ -25,4 +29,12 @@ img.logo {
 
 .top20 {
    margin-top: 20px;
+}
+
+ul , li {
+   list-style: none;
+}
+
+.magnet {
+   height: 20px;
 }
