@@ -26,21 +26,24 @@ var MockTransactions = [
  */
 angular.module('blockTorApp', [], function ($compileProvider) {
    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|magnet):/);
-}).controller('BlockTorController', function() {
+}).controller('BlockTorController', function($scope) {
    var blockTor = this;
 
    // Main data storage for torrent data
    blockTor.torrents = {};
    getTorrentList(function(ret) {
-      console.log("ret:", ret);
+      console.log(ret);
       setTimeout(function(){
+         parseTransactions(ret.reverse());
          $('.hidden').removeClass('hidden');
          $('.loading').addClass('hidden');
-      },1000);
+         setTimeout(function(){
+            $scope.$apply();
+         },500);
+      },500);
    });
 
-   // Execute search
-   parseTransactions(MockTransactions);
+   //parseTransactions(MockTransactions);
 
    blockTor.name = "We are Team BlockTor";
    blockTor.filter = "";
@@ -78,24 +81,27 @@ angular.module('blockTorApp', [], function ($compileProvider) {
     * Take each message and parse start, middle, and end.
     */
    function parseTransactions(transactions) {
+      console.log("TRANSACRTION:::::::::::", typeof(transactions));
+      console.log(transactions);
       var buffer;
       for (var i = 0; i < transactions.length; i++) {
          var transaction = transactions[i];
+         console.log(transaction);
 
          // Start
-         if (transaction.metadata.indexOf('[start]') !== -1) {
+         if (transaction.indexOf('[start]') !== -1) {
             buffer = [];
-            transaction.metadata = transaction.metadata.replace(/\[start\]/g,'');
+            transaction = transaction.replace(/\[start\]/g,'');
          }
 
          // Not End
-         if (transaction.metadata.indexOf('[end]') === -1) {
-            buffer.push(transaction.metadata);
+         if (transaction.indexOf('[end]') === -1) {
+            buffer.push(transaction);
          }
 
          // End
-         if (transaction.metadata.indexOf('[end]') !== -1) {
-            buffer.push(transaction.metadata.replace(/\[end\]/g,''));
+         if (transaction.indexOf('[end]') !== -1) {
+            buffer.push(transaction.replace(/\[end\]/g,''));
             processContent(buffer.join(''));
          }
       };
@@ -105,6 +111,7 @@ angular.module('blockTorApp', [], function ($compileProvider) {
     * Take buffer built from parts and transform to useable content.
     */
    function processContent(contentBuffer) {
+      console.log("cb:", contentBuffer);
       switch(true) {
          // Define new torrent
          case (contentBuffer.indexOf('torr') !== -1):
