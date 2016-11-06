@@ -30,11 +30,11 @@ angular.module('blockTorApp', [], function ($compileProvider) {
    var blockTor = this;
 
    // Main data storage for torrent data
-   blockTor.torrents = {};
+   blockTor.torrents = [];
    getTorrentList(function(ret) {
       console.log(ret);
       setTimeout(function(){
-         parseTransactions(ret.reverse());
+         parseTransactions(ret);
          $('.hidden').removeClass('hidden');
          $('.loading').addClass('hidden');
          setTimeout(function(){
