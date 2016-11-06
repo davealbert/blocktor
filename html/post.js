@@ -3,8 +3,13 @@ $(document).ready(function() {
       event.stopPropagation();
       // Do something
       var formData = $('form')[0].elements;
-      console.log(formData.torrent.value);
-      console.log(formData.tag.value);
-      console.log(formData.detail.value);
+
+      var torr = formData.torrent.value.substring(0,60);
+      var tag = formData.tag.value.substring(0,60);
+      var detail = formData.detail.value.substring(0,60);
+
+      console.log(torr);
+      console.log(tag);
+      console.log(detail);
    });
 });
