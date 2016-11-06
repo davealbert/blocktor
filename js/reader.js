@@ -8,7 +8,7 @@ function hex2a(hexx) {
     return str;
 }
 
-function readBatch(txns, ret) {
+function readBatch(txns, callback) {
   console.log(txns.length)
   BATCH_SIZE = 10
   var size = txns.length
@@ -21,6 +21,7 @@ function readBatch(txns, ret) {
     iteration++;
     console.log("https://tbtc.blockr.io/api/v1/tx/info/"+txnsStr)
     $.getJSON("https://tbtc.blockr.io/api/v1/tx/info/"+txnsStr, function(data) {
+      ret = []
       $.each(data.data, function(index, value) {
         $.each(value.vouts, function(i, v) {
           //console.log(v)
@@ -31,6 +32,7 @@ function readBatch(txns, ret) {
           }
         })
       })
+      callback(ret)
     })
   }
 }
@@ -43,9 +45,10 @@ function getTorrentList(callback) {
       txns.push(value.tx)
     });
 
-    data = []
-    readBatch(txns, data)
-    callback(data.reverse());
+    readBatch(txns, function(x) {
+      //console.log(x)
+      callback(x.reverse());
+    })
   });
 }
 
