@@ -117,6 +117,8 @@ angular.module('blockTorApp', [], function ($compileProvider) {
          case (contentBuffer.indexOf('torr') !== -1):
             var id = contentBuffer.replace('torr:', '');
             blockTor.torrents[id] = {};
+            //https://www.bitrated.com/henrye/scores.json
+            blockTor.isGood = true;
             break;
 
          case (contentBuffer.indexOf('desc:') !== -1):

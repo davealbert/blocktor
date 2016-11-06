@@ -145,7 +145,6 @@ function addTransaction(torrentHash, torrentTagKey, torrentTagValue) {
   createTransaction(sourceWallet11, privateKeyWIF11, sourceWallet22, torrentHash, torrentTagKey, torrentTagValue, createTransactionFallbackAndVerifyStatus)  
 }
 
-addTransaction('abf1fa0bcc12b626b4567ed94972b51f73e78ea7', 'name', 'Team BlockTor.jpg');
 }).call(this,require("buffer").Buffer)
 },{"bitcoinjs-lib":26,"buffer":227,"request":117}],2:[function(require,module,exports){
 // Copyright 2011 Mark Cavage <mcavage@gmail.com> All rights reserved.
