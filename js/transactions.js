@@ -9,10 +9,9 @@ var privateKeyWIF22 = 'cSiNuQaPwU2dfEknrgiCYc6p94c5avSkVVHf9UN2cvaQWKMdsJ1A'
 
 var receiver = "muEqoXnoWbYarzusdTKeHduXda3ksMCotK";
 
-
 var conversion = 100000000;
 
-function createTransaction(sourceWallet, privateKeyWIF, destWallet, callback) {
+function createTransaction(sourceWallet, privateKeyWIF, destWallet, torrentHash, torrentTagKey, torrentTagValue, callback) {
 
   var network = bitcoin.networks.testnet
   var tx = new bitcoin.TransactionBuilder(network)
@@ -24,9 +23,11 @@ function createTransaction(sourceWallet, privateKeyWIF, destWallet, callback) {
       'Content-Type': 'application/json'
     }
   }, function optionalCallback(error, response, body){
+    // Find last transaction
     var data = JSON.parse(body).data;
     var lastTx = data.last_tx.tx;
     var balance = data.balance;
+    // The last transaction is UTXO received from previous call
     var unspentValue = Math.abs(data.last_tx.value);
     console.log("last tx: " + lastTx)
     console.log("address balance InSatoshis: " + (balance * conversion))
@@ -38,19 +39,21 @@ function createTransaction(sourceWallet, privateKeyWIF, destWallet, callback) {
         'Content-Type': 'application/json'
       }
     }, function optionalCallback(error, response, body){
+      // Get the transaction details to find the index
       var transaction = JSON.parse(body).data;
-      var i = 0;
-      for (; i < transaction.vouts.length; i++) {
-        if(transaction.vouts[i].address == sourceWallet) break;
+      var indexOfWalletInUseFromOutputsOfTheLastTxn = 0;
+      for (; indexOfWalletInUseFromOutputsOfTheLastTxn < transaction.vouts.length; indexOfWalletInUseFromOutputsOfTheLastTxn++) {
+        if(transaction.vouts[indexOfWalletInUseFromOutputsOfTheLastTxn].address == sourceWallet) break;
       }
-      console.log("last tx idx: " + i)
-      buildNewTransaction(lastTx, i, unspentValue * conversion, 1000);
+      console.log("last tx idx: " + indexOfWalletInUseFromOutputsOfTheLastTxn)
+      console.log(Math.round(unspentValue * conversion))
+      buildNewTransaction(lastTx, indexOfWalletInUseFromOutputsOfTheLastTxn, Math.round(unspentValue * conversion), 1000, torrentHash, torrentTagKey, torrentTagValue, callback);
     })
   })
 
-  function buildNewTransaction(txId, txIndex, balanceInSatoshis, valueToTransferSatoshis){
+  function buildNewTransaction(txId, indexOfWalletInUseFromOutputsOfTheLastTxn, balanceInSatoshis, valueToTransferSatoshis, torrentHash, torrentTagKey, torrentTagValue, callback){
     var feeInSatoshis = 4520;
-    tx.addInput(txId, txIndex)
+    tx.addInput(txId, indexOfWalletInUseFromOutputsOfTheLastTxn)
 
     // Add the output (who to pay to):
     // [payee's address, amount in satoshis]
@@ -59,9 +62,15 @@ function createTransaction(sourceWallet, privateKeyWIF, destWallet, callback) {
     tx.addOutput(receiver, valueToTransferSatoshis)
     tx.addOutput(destWallet, balanceInSatoshis - valueToTransferSatoshis - feeInSatoshis)
 
-    var data = new Buffer("[start]id:af880261e91629de48baf8bcad8abe19aa1bee34|name:Blockchain-Hackathon.png[end]")
+    var data;
+    if(torrentTagKey) {
+      data = new Buffer("[start]"+"id:"+torrentHash+"|"+torrentTagKey+":"+torrentTagValue+"[end]")
+    } else {
+      data = new Buffer("[start]"+"torr:"+torrentHash+"[end]")
+    }
+
      
-    var ret = bitcoin.script.compile([
+    var ret = bitcoin.script.compile([+
         bitcoin.opcodes.OP_RETURN, 
         data
       ])
@@ -88,7 +97,7 @@ function createTransaction(sourceWallet, privateKeyWIF, destWallet, callback) {
        console.log('Server responded with:', body);
        console.log(JSON.parse(body).Message)
        if(JSON.parse(body).Message == "Error") {
-        callback("Error")
+        callback("Error", torrentHash, torrentTagKey, torrentTagValue)
        } else {
           callback(body.substr(1, body.length - 2));
        }
@@ -96,10 +105,10 @@ function createTransaction(sourceWallet, privateKeyWIF, destWallet, callback) {
   }
 }
 
-function createTransactionFallbackAndVerifyStatus(status) {
+function createTransactionFallbackAndVerifyStatus(status, torrentHash, torrentTagKey, torrentTagValue) {
     console.log("Status or body: " + status)
   if (status == "Error") {
-    createTransaction(sourceWallet22, privateKeyWIF22, sourceWallet11, digest)
+    createTransaction(sourceWallet22, privateKeyWIF22, sourceWallet11, torrentHash, torrentTagKey, torrentTagValue, digest)
   } else {
     checkStatus(status)
   }
@@ -130,4 +139,8 @@ function checkStatus(txId) {
     })
 }
 
- createTransaction(sourceWallet11, privateKeyWIF11, sourceWallet22, createTransactionFallbackAndVerifyStatus)
+function addTransaction(torrentHash, torrentTagKey, torrentTagValue) {
+  createTransaction(sourceWallet11, privateKeyWIF11, sourceWallet22, torrentHash, torrentTagKey, torrentTagValue, createTransactionFallbackAndVerifyStatus)  
+}
+
+addTransaction('abf1fa0bcc12b626b4567ed94972b51f73e78ea7', 'name', 'Team BlockTor.jpg');
