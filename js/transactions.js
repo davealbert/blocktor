@@ -7,7 +7,7 @@ var privateKeyWIF11 = 'cV7mTRkSbMNsE8zURVYf3FJPczWxCipibGvtZyh4SAwJ9Jrq28Dz'
 var sourceWallet22 = "mndPvy8Mz6d4nZSuL3fTtSTADJBxFbVfxa"
 var privateKeyWIF22 = 'cSiNuQaPwU2dfEknrgiCYc6p94c5avSkVVHf9UN2cvaQWKMdsJ1A'
 
-var receiver = "muEqoXnoWbYarzusdTKeHduXda3ksMCotK";
+var receiver = "mwzBThrZiTnPaR7rTtYhAjQnNnj1hxCTtA";
 
 var conversion = 100000000;
 
@@ -142,3 +142,11 @@ function checkStatus(txId) {
 function addTransaction(torrentHash, torrentTagKey, torrentTagValue) {
   createTransaction(sourceWallet11, privateKeyWIF11, sourceWallet22, torrentHash, torrentTagKey, torrentTagValue, createTransactionFallbackAndVerifyStatus)  
 }
+
+//addTransaction('af880261e91629de48baf8bcad8abe19aa1bee34')
+//addTransaction('af880261e91629de48baf8bcad8abe19aa1bee34', 'name', 'Blockchain-Hackathon.png')
+//addTransaction('af880261e91629de48baf8bcad8abe19aa1bee34', 'desc', 'Blockchain-Hackathon')
+
+//addTransaction('abf1fa0bcc12b626b4567ed94972b51f73e78ea8')
+//addTransaction('abf1fa0bcc12b626b4567ed94972b51f73e78ea8', 'name', 'Team BlockTor - Next.jpg')
+addTransaction('abf1fa0bcc12b626b4567ed94972b51f73e78ea8', 'desc', 'BlockTor team - Next')
