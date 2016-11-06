@@ -8,6 +8,8 @@ var privateKeyWIF11 = 'cV7mTRkSbMNsE8zURVYf3FJPczWxCipibGvtZyh4SAwJ9Jrq28Dz'
 var sourceWallet22 = "mndPvy8Mz6d4nZSuL3fTtSTADJBxFbVfxa"
 var privateKeyWIF22 = 'cSiNuQaPwU2dfEknrgiCYc6p94c5avSkVVHf9UN2cvaQWKMdsJ1A'
 
+var receiver = "mwzBThrZiTnPaR7rTtYhAjQnNnj1hxCTtA";
+
 
 var conversion = 100000000;
 
@@ -55,10 +57,10 @@ function f(sourceWallet, privateKeyWIF, destWallet, c) {
     // [payee's address, amount in satoshis]
     console.log("Txn balance: "+balanceInSatoshis);
     console.log("Value to transfer: "+ (balanceInSatoshis - valueToTransferSatoshis - feeInSatoshis));
-    tx.addOutput("muEqoXnoWbYarzusdTKeHduXda3ksMCotK", valueToTransferSatoshis)
+    tx.addOutput(receiver, valueToTransferSatoshis)
     tx.addOutput(destWallet, balanceInSatoshis - valueToTransferSatoshis - feeInSatoshis)
 
-    var data = new Buffer("[start]id:af880261e91629de48baf8bcad8abe19aa1bee34|name:hahahahaha[end]")
+    var data = new Buffer("[start]id:af880261e91629de48baf8bcad8abe19aa1bee34|name:Blockchain-Hackathon.png[end]")
      
     var ret = bitcoin.script.compile([
         bitcoin.opcodes.OP_RETURN, 

@@ -1,4 +1,4 @@
-var receiverAddress = 'muEqoXnoWbYarzusdTKeHduXda3ksMCotK';
+var receiverAddress = 'mwzBThrZiTnPaR7rTtYhAjQnNnj1hxCTtA';
 
 function hex2a(hexx) {
     var hex = hexx.toString();//force conversion
@@ -45,7 +45,7 @@ function getTorrentList(callback) {
 
     data = []
     readBatch(txns, data)
-    callback(data);
+    callback(data.reverse());
   });
 }
 
