@@ -1,69 +1,131 @@
 var bitcoin = require("bitcoinjs-lib")
 var request = require('request')
+var sleep = require('sleep');
 
-var network = bitcoin.networks.testnet
-var tx = new bitcoin.TransactionBuilder(network)
+var sourceWallet11 = "mkEEZ8gqfJsH1MRsQa9tBs1c66o561952Y"
+var privateKeyWIF11 = 'cV7mTRkSbMNsE8zURVYf3FJPczWxCipibGvtZyh4SAwJ9Jrq28Dz'
 
-var sourceWallet = "mkEEZ8gqfJsH1MRsQa9tBs1c66o561952Y"
+var sourceWallet22 = "mndPvy8Mz6d4nZSuL3fTtSTADJBxFbVfxa"
+var privateKeyWIF22 = 'cSiNuQaPwU2dfEknrgiCYc6p94c5avSkVVHf9UN2cvaQWKMdsJ1A'
 
-request({
-  url: "http://tbtc.blockr.io/api/v1/address/info/" + sourceWallet,
-  method: "GET",
-  headers: {
-    'Content-Type': 'application/json'
-  }
-}, function optionalCallback(error, response, body){
-  var lastTx = JSON.parse(body).data.last_tx.tx;
-  console.log("last tx: " + lastTx)
+
+var conversion = 100000000;
+
+function f(sourceWallet, privateKeyWIF, destWallet, c) {
+
+  var network = bitcoin.networks.testnet
+  var tx = new bitcoin.TransactionBuilder(network)
+
   request({
-    url: "https://testnet.api.coinprism.com/v1/transactions/" + lastTx,
+    url: "http://tbtc.blockr.io/api/v1/address/info/" + sourceWallet,
     method: "GET",
-    strictSSL: false,
     headers: {
       'Content-Type': 'application/json'
     }
   }, function optionalCallback(error, response, body){
-    var transactions = JSON.parse(body).outputs;
-    var txIndex = transactions[transactions.length - 1].index;
-    console.log("last tx idx: " + txIndex)
-    buildNewTransaction(lastTx, txIndex)
+    var data = JSON.parse(body).data;
+    var lastTx = data.last_tx.tx;
+    var balance = data.balance;
+    var unspentValue = Math.abs(data.last_tx.value);
+    console.log("last tx: " + lastTx)
+    console.log("address balance InSatoshis: " + (balance * conversion))
+    console.log("unspentValue: " + unspentValue)
+    request({
+      url: "http://tbtc.blockr.io/api/v1/tx/info/" + lastTx,
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }, function optionalCallback(error, response, body){
+      var transaction = JSON.parse(body).data;
+      var i = 0;
+      for (; i < transaction.vouts.length; i++) {
+        if(transaction.vouts[i].address == sourceWallet) break;
+      }
+      console.log("last tx idx: " + i)
+      buildNewTransaction(lastTx, i, unspentValue * conversion, 1000);
+    })
   })
-})
 
-function buildNewTransaction(txId, txIndex){
-  tx.addInput(txId, 1)
+  function buildNewTransaction(txId, txIndex, balanceInSatoshis, valueToTransferSatoshis){
+    var feeInSatoshis = 4520;
+    tx.addInput(txId, txIndex)
 
-  // Add the output (who to pay to):
-  // [payee's address, amount in satoshis]
-  tx.addOutput("muEqoXnoWbYarzusdTKeHduXda3ksMCotK", 1000)
+    // Add the output (who to pay to):
+    // [payee's address, amount in satoshis]
+    console.log("Txn balance: "+balanceInSatoshis);
+    console.log("Value to transfer: "+ (balanceInSatoshis - valueToTransferSatoshis - feeInSatoshis));
+    tx.addOutput("muEqoXnoWbYarzusdTKeHduXda3ksMCotK", valueToTransferSatoshis)
+    tx.addOutput(destWallet, balanceInSatoshis - valueToTransferSatoshis - feeInSatoshis)
 
-  var data = new Buffer("[start]id:af880261e91629de48baf8bcad8abe19aa1bee34|name:hahahahaha[end]")
-   
-  var ret = bitcoin.script.compile([
-      bitcoin.opcodes.OP_RETURN, 
-      data
-    ])
-  tx.addOutput(ret, 0);
-  // Initialize a private key using WIF
-  var privateKeyWIF = 'cV7mTRkSbMNsE8zURVYf3FJPczWxCipibGvtZyh4SAwJ9Jrq28Dz'
-  var keyPair = bitcoin.ECPair.fromWIF(privateKeyWIF, network)
+    var data = new Buffer("[start]id:af880261e91629de48baf8bcad8abe19aa1bee34|name:hahahahaha[end]")
+     
+    var ret = bitcoin.script.compile([
+        bitcoin.opcodes.OP_RETURN, 
+        data
+      ])
+    tx.addOutput(ret, 0);
+    // Initialize a private key using WIF
+    var keyPair = bitcoin.ECPair.fromWIF(privateKeyWIF, network)
 
-  // Sign the first input with the new key
-  tx.sign(0, keyPair)
+    // Sign the first input with the new key
+    tx.sign(0, keyPair)
 
-  var signTx = tx.build().toHex();
+    var signTx = tx.build().toHex();
 
-  console.log(signTx)
+    console.log(signTx)
 
-  request({
-    url: "https://testnet.api.coinprism.com/v1/sendrawtransaction",
-    method: "POST",
-    strictSSL: false,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    "body": '"' + signTx + '"'
-  }, function optionalCallback(error, response, body){
-    console.log('Server responded with:', body);
-  })
+    request({
+      url: "https://testnet.api.coinprism.com/v1/sendrawtransaction",
+      method: "POST",
+      strictSSL: false,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      "body": '"' + signTx + '"'
+    }, function optionalCallback(error, response, body){
+       console.log('Server responded with:', body);
+       console.log(JSON.parse(body).Message)
+       if(JSON.parse(body).Message == "Error") {
+        c("Error")
+       } else {
+          c(body.substr(1, body.length - 2));
+       }
+    })
+  }
 }
+
+function c(status) {
+    console.log("Status or body: " + status)
+  if (status == "Error") {
+    f(sourceWallet22, privateKeyWIF22, sourceWallet11, digest)
+  } else {
+    checkStatus(status)
+  }
+}
+
+function digest(status) {
+  checkStatus(status)
+}
+
+function checkStatus(txId) {
+    request({
+      url: "http://tbtc.blockr.io/api/v1/tx/info/" + txId,
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }, function optionalCallback(error, response, body){
+       //console.log("Transaction: "+ body)
+       var transaction = JSON.parse(body).data;
+       if(transaction && !transaction.is_unconfirmed) {
+        return;
+       } else {
+        sleep.sleep(5)
+        console.log("waiting for the transaction to be confirmed")
+        checkStatus(txId);
+       }
+    })
+}
+
+f(sourceWallet11, privateKeyWIF11, sourceWallet22, c)
